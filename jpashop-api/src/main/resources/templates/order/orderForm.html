@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: header" />
+<style>
+    .form-orders > li{
+        list-style-type: none;
+        width:inherit;
+        border-top: 1px solid black;
+        border-bottom: 1px solid black;
+        padding-top:25px;
+        padding-left:10px;
+        padding-bottom:20px;
+        padding-righr:10px;
+    }
+
+</style>
+<script>
+
+    let fn_choose_item = (obj) => {
+
+        let memberId = $("#member").val();
+
+        if(memberId == ""){
+            alert("회원을 먼저 선택해 주세요.");
+            $("#item").val("");
+            return false;
+        }
+
+        let item = $(obj).find("option:selected");
+
+        let itemId = $(item).val();
+        let itemNm = $(item).text();
+        let dtype = $(item).attr("data-dtype");
+        let dtypeNm = $(item).attr("data-dtype-nm");
+        let value1 = null;
+        let value2 = null;
+        let labelValue1 = null;
+        let labelValue2 = null;
+
+        if(dtype == 'A'){
+            value1 = $(item).attr("data-artist");
+            value2 = $(item).attr("data-etc");
+            labelValue1 = "아티스트";
+            labelValue2 = "기타";
+        }else if(dtype = 'B'){
+            value1 = $(item).attr("data-author");
+            value2 = $(item).attr("data-isbn");
+            labelValue1 = "저자";
+            labelValue2 = "ISBN";
+        }else{
+            value1 = $(item).attr("data-director");
+            value2 = $(item).attr("data-actor");
+            labelValue1 = "감독";
+            labelValue2 = "배우";
+        }
+
+        let idx = $(".form-orders").find("li").length;
+
+        $(".form-disabled").find(".form-order").clone().appendTo(".form-orders");
+
+
+        let chose = $(".form-orders").find("li").eq(idx);
+
+        $(chose).find("input[name=memberId]")
+            .attr("name", "orderDtoList["+idx+"].memberId")
+            .val(memberId);
+
+        $(chose).find("input[name=itemId]")
+            .attr("name", "orderDtoList["+idx+"].itemId")
+            .val( itemId );
+        $(chose).find("input[name=count]")
+            .attr("name", "orderDtoList["+idx+"].count");
+        $(chose).find(".item-dtype-nm").text(dtypeNm );
+        $(chose).find(".item-name").text(itemNm );
+        $(chose).find(".item-value1").text(value1 );
+        $(chose).find(".label-value1").text(labelValue1 );
+        $(chose).find(".item-value2").text(value2 );
+        $(chose).find(".label-value2").text(labelValue2 );
+
+        $(".form-orders").find(".form-order").css("display","");
+
+        $(".memberWrap").hide();
+        $(".textMemberWrap").show();
+        $("#textMember").val($(item).text());
+
+
+        $("#item").val("");
+
+    }
+
+    let fn_minus_count = (obj) => {
+        let cnt = parseInt($(obj).parent().find("input").val(), 0);
+
+        if( (cnt-1) > 0 ){
+            $(obj).parent().find("input").val(cnt-1);
+        }else{
+            if(confirm("선택된 상품을 제거하시겠습니까?")){
+                $(obj).parent().parent().remove();
+            }
+
+            if($(".form-orders").find("li").length == 0){
+                $(".memberWrap").show();
+                $("#member").val("");
+                $("#textMember").val("");
+                $(".textMemberWrap").hide();
+            }
+        }
+    }
+
+    let fn_plus_count = (obj) => {
+        let cnt = parseInt($(obj).parent().find("input").val(), 0);
+
+        console.log(cnt)
+
+        $(obj).parent().find("input").val(cnt+1);
+    }
+
+</script>
+<body>
+
+<div class="container">
+    <div th:replace="fragments/bodyHeader :: bodyHeader"/>
+
+    <form role="form" action="/order" method="post">
+
+        <div class="form-group memberWrap">
+            <label for="member">주문회원</label>
+            <select id="member" class="form-control">
+                <option value="">회원선택</option>
+                <option th:each="member : ${members}"
+                        th:value="${member.id}"
+                        th:text="${member.name}" />
+            </select>
+        </div>
+        <div class="form-group textMemberWrap"  style="display: none;">
+            <label for="textMember">주문회원</label>
+            <input id="textMember" class="form-control"  style="background-color: #dddddd"  readonly="readonly"/>
+        </div>
+
+
+        <div class="form-group">
+            <label for="item">상품명</label>
+            <select id="item" class="form-control" onchange="fn_choose_item(this)">
+                <option value="">상품선택</option>
+                <option th:each="item : ${items}"
+                        th:value="${item.getId()}"
+                        th:text="${item.getName()}"
+                        th:data-dtype="${item.getDtype()}"
+                        th:data-dtype-nm="${item.getDtypeNm()}"
+                        th:data-price="${item.getPrice()}"
+                        th:data-artist="${item.getArtist()}"
+                        th:data-etc="${item.getEtc()}"
+                        th:data-author="${item.getAuthor()}"
+                        th:data-isbn="${item.getIsbn()}"
+                        th:data-director="${item.getDirector()}"
+                        th:data-actor="${item.getActor()}"
+                />
+            </select>
+        </div>
+        <ul class="form-orders" style="list-style-type: none;">
+        </ul>
+
+        <!--<div class="form-group">
+            <label for="count">주문수량</label>
+            <input type="number" name="count" class="form-control" id="count" placeholder="주문 수량을 입력하세요">
+        </div>-->
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <ul class="form-disabled">
+        <li class="form-order" style="display: none;">
+            <h5><span class="item-dtype-nm"></span> > <span class="item-name"></span></h5>
+            <h6>
+                <span class="label-value1"></span> : <span class="item-value1"></span></br>
+                <span class="label-value2"></span> : <span class="item-value2"></span>
+            </h6>
+
+            <input type="hidden" name="memberId">
+            <input type="hidden" name="itemId">
+            <div>
+                <button type="button" onclick="fn_minus_count(this)">-</button><input name = "count" value="1"><button type="button" onclick="fn_plus_count(this)">+</button>
+            </div>
+        </li>
+    </ul>
+
+    <br/>
+    <div th:replace="fragments/footer :: footer" />
+
+</div> <!-- /container -->
+
+</body>
+</html>
