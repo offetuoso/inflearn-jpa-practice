@@ -3,12 +3,11 @@ package jpabook.jpashop.api;
 import jpabook.jpashop.domain.Address;
 import jpabook.jpashop.domain.Member;
 import jpabook.jpashop.service.MemberService;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -43,6 +42,39 @@ public class MemberApiController {
         return new CreateMemberResopnse(id);
     }
 
+    @PutMapping("/api/v2/members/{id}")
+    public UpdateMemberResopnse updateMemberV2(
+            @PathVariable("id") Long id
+            , @RequestBody @Valid UpdateMemberRequest request
+    ){
+
+        // 수정 커맨드
+        memberService.update(id, request.getName());
+        // 조회 쿼리
+        Member findMember = memberService.findOne(id);
+        
+        // 커맨드와 쿼리를 분리
+
+        return new UpdateMemberResopnse(findMember.getId(), findMember.getName());
+    }
+
+
+    @Data
+    @AllArgsConstructor
+    static class UpdateMemberResopnse {
+        private long id;
+        private String name;
+    }
+
+    @Data
+    static class UpdateMemberRequest {
+        @NotEmpty
+        private String name;
+        private String city;
+        private String street;
+        private String zipcode;
+    }
+
     @Data
     static class CreateMemberResopnse {
         private long id;
@@ -63,4 +95,5 @@ public class MemberApiController {
         @NotEmpty
         private String zipcode;
     }
+
 }
