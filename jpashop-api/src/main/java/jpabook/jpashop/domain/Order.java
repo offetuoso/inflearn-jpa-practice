@@ -1,5 +1,8 @@
 package jpabook.jpashop.domain;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jpabook.jpashop.domain.item.Item;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -14,6 +17,7 @@ import java.util.List;
 @Entity
 @Getter @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "id") //직렬화시 중복 생성 막음
 @Table(name = "orders")
 public class Order {
 
@@ -29,6 +33,7 @@ public class Order {
 
 
     // mappedBy 연관관계의 주인인 OrderItem의 order로 매핑 되어있다는 뜻
+    @JsonIgnore
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 

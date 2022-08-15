@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.stream.Collectors;
 
 //@Controller @RequestBody // 두개 합친 것이 @RestController
 @RestController
@@ -18,6 +20,41 @@ import javax.validation.constraints.NotEmpty;
 public class MemberApiController {
 
     private final MemberService memberService;
+
+
+    @GetMapping("/api/v1/members")
+    public List<Member> getMembersV1(){
+        List<Member> members = memberService.findMembers();
+        return members;
+    }
+
+
+    @GetMapping("/api/v2/members")
+    public Result getMembersV2(){
+        List<Member> findMembers = memberService.findMembers();
+
+        List<MemberDto> collect = findMembers.stream()
+                .map(m -> new MemberDto(m.getName(), m.getAddress()))
+                .collect(Collectors.toList());
+
+        return new Result(collect.size(), collect);
+    }
+
+    @Data
+    @AllArgsConstructor
+    public class Result<T> {
+        private int count;
+        private T data;
+    }
+
+    @Data
+    @AllArgsConstructor
+    static class MemberDto {
+        private String name;
+        private Address address;
+    }
+
+
 
     /*
      *  첫번째 버전의 회원등록

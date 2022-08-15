@@ -1,5 +1,6 @@
 package jpabook.jpashop.domain;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,9 @@ import java.util.List;
 
 @Entity
 @Getter @Setter
+//@JsonIdentityInfo(generator = ObjectIdGenerators.IntSequenceGenerator.class, property = "id")
 public class Member {
+
 
     public Member() {
     }
@@ -24,7 +27,7 @@ public class Member {
     @Embedded
     private Address address;
 
-
+    @JsonIgnore
     @OneToMany(mappedBy = "member")
     private List<Order> orders = new ArrayList<>();
 
