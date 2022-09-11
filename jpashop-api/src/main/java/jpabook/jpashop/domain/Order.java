@@ -33,7 +33,6 @@ public class Order {
 
 
     // mappedBy 연관관계의 주인인 OrderItem의 order로 매핑 되어있다는 뜻
-    @JsonIgnore
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems = new ArrayList<>();
 

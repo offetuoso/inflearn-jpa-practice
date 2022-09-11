@@ -105,6 +105,16 @@ public class OrderRepository {
 
     }
 
+    public List<Order> findAllWithMemberDelivery() {
+        return em.createQuery(
+                "SELECT o from Order o" +
+                        " join fetch o.member m "+
+                        " join fetch o.delivery d ", Order.class
+        ).getResultList();
+    }
+
+
+
     /**
      *  Querydsl
      * */
